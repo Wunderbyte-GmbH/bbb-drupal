@@ -124,40 +124,41 @@ class Meeting implements MeetingInterface {
     }
 
     if (!isset(self::$meetings[$id]) || !$cached) {
-
       /** @var \BigBlueButton\Parameters\CreateMeetingParameters $meeting_created */
       $meeting_created = $this->meetingCollection->get($id);
       if ($meeting_created) {
         $meeting_info = $this->api->getMeetingInfo(new GetMeetingInfoParameters($meeting_created->getMeetingId(), $meeting_created->getModeratorPassword()));
         if ($meeting_info) {
-        $url = [
-          'attend' => $this->api->joinMeeting(
-            new JoinMeetingParameters(
-              $meeting_created->getMeetingId(),
-              $account->getDisplayName(),
-              $meeting_created->getAttendeePassword()
-            )
-          ),
-          'moderate' => $this->api->joinMeeting(
-            new JoinMeetingParameters(
-              $meeting_created->getMeetingId(),
-              $account->getDisplayName(),
-              $meeting_created->getModeratorPassword()
-            )
-          ),
-        ];
-        $meeting = [
-          'info' => $meeting_info,
-          'created' => $meeting_created,
-          'url' => $url,
-        ];
-        // Allow alteration for e.g. access control
-        // Just implement hook_bbb_meeting_alter(&$data) {} in your module.
-        $this->moduleHandler->alter('bbb_get_meeting', $meeting);
-        // Static cache.
-        self::$meetings[$id] = $meeting;
+          $attend = new JoinMeetingParameters(
+            $meeting_created->getMeetingId(),
+            $account->getDisplayName(),
+            $meeting_created->getAttendeePassword()
+          );
+          $attend->setJoinViaHtml5(TRUE);
+          $attend->setRedirect(TRUE);
+          $moderate = new JoinMeetingParameters(
+            $meeting_created->getMeetingId(),
+            $account->getDisplayName(),
+            $meeting_created->getModeratorPassword()
+          );
+          $moderate->setJoinViaHtml5(TRUE);
+          $moderate->setRedirect(TRUE);
+          $url = [
+            'attend' => $this->api->joinMeeting($attend),
+            'moderate' => $this->api->joinMeeting($moderate),
+          ];
+          $meeting = [
+            'info' => $meeting_info,
+            'created' => $meeting_created,
+            'url' => $url,
+          ];
+          // Allow alteration for e.g. access control
+          // Just implement hook_bbb_meeting_alter(&$data) {} in your module.
+          $this->moduleHandler->alter('bbb_get_meeting', $meeting);
+          // Static cache.
+          self::$meetings[$id] = $meeting;
+        }
       }
-    }
     }
     return isset(self::$meetings[$id]) ? self::$meetings[$id] : [];
   }

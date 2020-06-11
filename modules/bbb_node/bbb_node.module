@@ -98,8 +98,8 @@ function bbb_node_form_alter(&$form, FormStateInterface $form_state, $form_id) {
 
       /** @var \Drupal\bbb_node\Service\NodeMeeting $node_meeting */
       $node_meeting = \Drupal::service('bbb_node.meeting');
-
-      if (!$node_meeting->isTypeOf($node_type)) {
+      $type = $node_type->get('type');
+      if ( is_null($node_type->get('type')) OR !$node_meeting->isTypeOf($node_type)) {
         return;
       }
 
