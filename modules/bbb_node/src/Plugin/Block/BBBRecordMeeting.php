@@ -2,7 +2,7 @@
 
 namespace Drupal\bbb_node\Plugin\Block;
 
-use BigBlueButton\Parameters\GetMeetingInfoParameters;
+use BigBlueButton\Parameters\GetRecordingsParameters;
 use Drupal\bbb\Service\Api;
 use Drupal\bbb_node\Service\NodeMeeting;
 use Drupal\Core\Access\AccessResult;
@@ -10,18 +10,19 @@ use Drupal\Core\Block\BlockBase;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
 use Drupal\Core\Routing\ResettableStackedRouteMatchInterface;
 use Drupal\Core\Session\AccountInterface;
+use Drupal\Core\Url;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 
 /**
- * Provides a "BBB Meeting details" block.
+ * Provides a "BBB Meeting recorde´s" block.
  *
  * @Block(
- *   id = "bbb_node_login_meeting",
- *   admin_label = @Translation("BBB Meeting Details")
+ *   id = "bbb_node_record_meeting",
+ *   admin_label = @Translation("BBB Meeting records")
  * )
  */
-class BBBLoginMeeting extends BlockBase implements ContainerFactoryPluginInterface {
+class BBBRecordMeeting extends BlockBase implements ContainerFactoryPluginInterface {
 
   /**
    * Current route match.
@@ -36,6 +37,13 @@ class BBBLoginMeeting extends BlockBase implements ContainerFactoryPluginInterfa
    * @var \Drupal\bbb_node\Service\NodeMeeting
    */
   protected $nodeMeeting;
+
+  /**
+   * Api wrapper.
+   *
+   * @var \Drupal\bbb\Service\Api
+   */
+  protected $api;
 
   /**
    * Creates an instance of the plugin.
@@ -92,38 +100,68 @@ class BBBLoginMeeting extends BlockBase implements ContainerFactoryPluginInterfa
     if ($node == null) {
       return AccessResult::forbidden();
     }
-    $meeting = $this->nodeMeeting->get($node);
-    if (!($node && $this->nodeMeeting->isTypeOf($node)) || count($meeting) == 0) {
+    $records = $this->get_records($node);
+    $count = count($records['#items']);
+    if (!($node && $this->nodeMeeting->isTypeOf($node)) || $count == 0) {
       return AccessResult::forbidden();
     }
     return parent::blockAccess($account);
   }
 
-  protected function status($node) {
+  protected function get_records($node) {
     $meeting = $this->nodeMeeting->get($node);
     if (count($meeting) == 0){
-      return null;
+      return ['#items' => []];
     }
-    $status = $this->api->getMeetingInfo(new GetMeetingInfoParameters($meeting['created']->getMeetingId(), $meeting['created']->getModeratorPassword()));
-    if ($status && property_exists($status, 'isRunning') && $status->isRunning()) {
-      return 'open';
+    $recording_parameters = new GetRecordingsParameters();
+    $recording_parameters->setMeetingId($meeting['created']->getMeetingId());
+    $recording = $this->api->getRecordings($recording_parameters);
+    $links = [
+      '#theme' => 'item_list__rec',
+      '#list_type' => 'ul',
+      '#items' => [],
+      '#attributes' => ['class' => 'bbb_records'],
+      '#wrapper_attributes' => ['class' => 'container'],
+      '#cache' => ['max-age' => 0,],
+    ];
+    $timezone = drupal_get_user_timezone();
+    foreach ($recording as $key => $record) {
+      $start = $recording[$key]->getStartTime();
+      $end = $recording[$key]->getEndTime();
+      $name = $recording[$key]->getName();
+      $playbackurl = $recording[$key]->getPlaybackUrl();
+      $recordID = $recording[$key]->getRecordId();
+      $url = Url::fromUri($playbackurl);
+      $formatted_date = \Drupal::service('date.formatter')->format($start/1000, 'short');
+      $min = ($end -$start) / 60000;
+      if ($min >= 1) {
+        $duration = (int) $min . t( ' min.');
+      }
+      else {
+        $duration = (int) ($min * 60) . t(' sec.');
+      }
+      $link = [
+        '#type' => 'link',
+        '#url' => $url,
+        '#title' => $name,
+        '#description' => $formatted_date . " " . $duration
+      ];
+      $link['#attributes']['target'] = '_blank';
+      $links['#items'][] = $link ;//. ": " . $formatted_date . " " . $duration;
     }
-    else {
-      return 'closed';
-    }
+    return $links;
   }
+
   /**
    * Implements \Drupal\block\BlockBase::build().
    */
   public function build() {
     $node = $this->routeMatch->getParameter('node');
+    $records = $this->get_records($node);
     return [
-      '#theme' => 'bbb_meeting_status',
-      '#meeting' => _bbb_node_get_links($node),
-      '#status' => $this->status($node),
+      '#theme' => 'bbb_meeting_record',
+      '#records' => $records,
       '#cache' => ['max-age' => 0,],
-      '#attributes' => ['id' => 'meeting_status', 'class' => 'meeting_status'],
-      '#allowed_tags' => ['span'],
     ];
   }
 

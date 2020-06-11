@@ -4,3 +4,15 @@ check_status:
     js/check_status.bbb.js: {}
   dependencies:
     - core/jquery
+
+reload_node:
+  version: VERSION
+  js:
+    js/reload_node.js: {}
+  dependencies:
+    - core/jquery
+
+details:
+  css:
+    theme:
+      css/details.css: {}

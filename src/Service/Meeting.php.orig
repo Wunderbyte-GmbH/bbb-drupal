@@ -199,8 +199,8 @@ class Meeting implements MeetingInterface {
     }
     $meeting = $this->get($key);
     $params = new EndMeetingParameters(
-      $meeting['created']->getMeetingId(),
-      $meeting['created']->getModeratorPassword()
+      $meeting->meetingID,
+      $meeting->moderatorPW
     );
     $request = $this->api->endMeeting($params);
     return $request;

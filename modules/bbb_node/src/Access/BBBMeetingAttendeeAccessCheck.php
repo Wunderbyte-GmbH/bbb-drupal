@@ -53,7 +53,7 @@ class BBBMeetingAttendeeAccessCheck implements AccessInterface {
     if (!$node instanceof NodeInterface) {
       $node = $this->nodeStorage->load($node);
     }
-    if ($this->nodeMeeting->isTypeOf($node)) {
+    if (!$this->nodeMeeting->isTypeOf($node)) {
       return AccessResult::forbidden();
     }
 

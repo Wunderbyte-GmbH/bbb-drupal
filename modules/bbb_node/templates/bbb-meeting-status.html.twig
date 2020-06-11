@@ -1,2 +1,11 @@
-<p><a href="{{ meeting.url.attend }}" target="_blank">{{ "Attend"|t }}</a></p>
-<a href="{{ meeting.url.moderate }}" target="_blank">{{ "Moderate"|t }}</a>
+{{ attach_library('bbb_node/details')}}
+
+<div class="meeting_details">
+  <div class="links">
+    {{ meeting }}
+  </div>
+  <div class="status">
+    <span id="open" class="open {{ status }}">{{ 'Meeting is open'|t }}</span>
+    <span id="closed" class="closed {{ status }}">{{ 'Meeting is closed'|t }}</span>
+  </div>
+</div>

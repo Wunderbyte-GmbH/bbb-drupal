@@ -7,7 +7,7 @@ use BigBlueButton\Parameters\EndMeetingParameters;
 use BigBlueButton\Parameters\GetMeetingInfoParameters;
 use BigBlueButton\Parameters\IsMeetingRunningParameters;
 use BigBlueButton\Parameters\JoinMeetingParameters;
-
+use BigBlueButton\Parameters\GetRecordingsParameters;
 /**
  * Class Api.
  *
@@ -245,5 +245,13 @@ class Api {
   public function end($key) {
 
   }
-
+  public function getRecordings(GetRecordingsParameters $params) {
+    $response = $this->bbb->getRecordings($params);
+    if ($response->getReturnCode() === self::SUCCESS) {
+      return $response->getRecords();
+    }
+    else {
+      return FALSE;
+    }
+  }
 }

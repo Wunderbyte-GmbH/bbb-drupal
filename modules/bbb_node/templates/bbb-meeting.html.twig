@@ -9,9 +9,12 @@
 *   iframe tag.
 */
 #}
-<iframe {{ attributes }}>
+
+
+<iframe width="100%" style="max-height: 650px; height: calc(100vh * 0.70);" src="{{ meeting }}"
+        frameborder="0" allowfullscreen allow="camera; microphone;">
   {% trans %}
     Your browser does not support iframes, but you can use the following link:
-    <a href="{{ src }}">Link</a>
+    <a href="{{ meeting }}">Link</a>
   {% endtrans %}
 </iframe>

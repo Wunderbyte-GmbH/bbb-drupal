@@ -1,0 +1,23 @@
+.meeting_details {
+  padding-top: 20px;
+  padding-bottom: 20px;
+}
+.meeting_details .status {
+  padding-left: 40px;
+}
+
+.status .open.open,
+.status .closed.closed {
+  display: block;
+}
+
+.status .open.closed,
+.status .closed.open {
+  display: none;
+}
+
+.bbb_records .description {
+  display: block;
+  font-size: 14px;
+  font-style: italic;
+}

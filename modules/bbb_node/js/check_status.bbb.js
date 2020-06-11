@@ -6,9 +6,11 @@
           if (data.running === true) {
             location.reload();
           }
-        }).fail(
-          clearInterval(drupalSettings.bbb.check_status.interval)
-        );
+        }).fail(function( jqxhr, textStatus, error ) {
+          var err = textStatus + ", " + error;
+          console.log( "Request Failed: " + err );
+          clearInterval(drupalSettings.bbb.check_status.interval);
+        });
       }, 5000);
     }
   };
