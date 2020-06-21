@@ -252,7 +252,7 @@ function bbb_node_node_insert(EntityInterface $node) {
   if ($node_meeting->isTypeOf($node)) {
     $params = new CreateMeetingParameters($node->uuid(), $node->getTitle());
     \Drupal::moduleHandler()->alter('bbb_node_create', $params, $node);
-    $meeting = $node_meeting->create($node, $params);
+    $node_meeting->create($node, $params);
     $node_meeting->store($node, $params);
   }
 }
@@ -265,8 +265,8 @@ function bbb_node_node_update(EntityInterface $node) {
   $meeting = \Drupal::service('bbb_node.meeting');
   /** @var \Drupal\node\NodeInterface $node */
   if ($meeting->isTypeOf($node)) {
-    $meeting->update($node, $node->bbb['info'] ?: new CreateMeetingParameters($node->uuid(), $node
-      ->getTitle()));
+    $params = new CreateMeetingParameters($node->uuid(), $node->getTitle());
+    $meeting->update($node, $params);
   }
 }
 
@@ -281,7 +281,6 @@ function bbb_node_node_view(array &$build, EntityInterface $node, EntityViewDisp
   if (!$node_meeting->isTypeOf($node)) {
     return;
   }
-  $meeting = $node_meeting->get($node);
 
   $BBBNodeTypeConfig = \Drupal::entityTypeManager()->getStorage('bbb_node_type')->load($node->getType());
   // Show meeting status.
@@ -301,20 +300,21 @@ function bbb_node_node_view(array &$build, EntityInterface $node, EntityViewDisp
   // Add links to content.
   $links = [];
   $show = $BBBNodeTypeConfig->get('showLinks');
+  $record = $BBBNodeTypeConfig->get('record');
   if ($view_mode !== 'teaser' && $show) {
     $meeting = $node_meeting->get($node);
     $current_user = \Drupal::currentUser();
     if ($current_user->hasPermission('bbb_node attend meetings') || $current_user->hasPermission('administer big blue button')) {
       $links['meeting_attend'] = [
         'title' => t('Attend meeting'),
-        'href' => Url::fromRoute('bbb_node.meeting.attend', ['node' => $node->id()])->toString(),
+        'href' => Url::fromRoute('bbb_node.meeting.attend', ['node' => $node->id(), 'record' => $record])->toString(),
       ];
     }
     if ((\Drupal::currentUser()->hasPermission('bbb_node moderate meetings') || $current_user->hasPermission('administer big blue button')) ||
       $current_user->id() == $node->getOwnerId() && $current_user->hasPermission('bbb_node moderate own meetings')) {
       $links['meeting_moderate'] = [
         'title' => t('Moderate meeting'),
-        'href' => Url::fromRoute('bbb_node.meeting.moderate', ['node' => $node->id()])->toString(),
+        'href' => Url::fromRoute('bbb_node.meeting.moderate', ['node' => $node->id(), 'record' => $record])->toString(),
       ];
     }
     if (($current_user->hasPermission('bbb_node moderate meetings') || $current_user->hasPermission('administer big blue button')) ||
@@ -322,7 +322,7 @@ function bbb_node_node_view(array &$build, EntityInterface $node, EntityViewDisp
       $meeting['info']->isRunning()) {
       $links['meeting_end'] = [
         'title' => t('Terminate meeting'),
-        'href' => Url::fromRoute('bbb_node.meeting.end_meeting_confirm_form', ['node' => $node->id()])->toString(),
+        'href' => Url::fromRoute('bbb_node.meeting.end_meeting_confirm_form', ['node' => $node->id(), 'record' => $record])->toString(),
       ];
     }
     if (!empty($links)) {
