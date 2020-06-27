@@ -60,7 +60,6 @@ function bbb_menu() {
   ];
   $items['node/%node/meeting/status'] = [
     'type' => 'MENU_CALLBACK',
-    //'file' => 'includes/api.bbb.inc',
   ];
 
   return $items;
@@ -290,11 +289,12 @@ function bbb_node_node_view(array &$build, EntityInterface $node, EntityViewDisp
       '#meeting' => _bbb_node_get_links($node),
       '#weight' => 10,
     ];
+    /*
     $build['content']['bbb_meeting_record'] = [
       '#theme' => 'bbb_meeting_status',
       '#meeting' => _bbb_node_get_links($node, true),
       '#weight' => 11,
-    ];
+    ];*/
   }
 
   // Add links to content.

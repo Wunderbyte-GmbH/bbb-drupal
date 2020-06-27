@@ -116,20 +116,20 @@ class Meeting implements MeetingInterface {
   }
 
   /**
+   * Return a meeting room by id. If the meeting is not started, it is not possible to attend.
+   *
    * {@inheritdoc}
    */
-  public function get($id, AccountInterface $account = NULL, $cached = TRUE) {
+  public function get($id, AccountInterface $account = NULL, $cached = FALSE) {
     if (empty($account)) {
-      $account = $this->currentUser;
+      $account = \Drupal::currentUser();
     }
-
     if (!isset(self::$meetings[$id]) || !$cached) {
       /** @var \BigBlueButton\Parameters\CreateMeetingParameters $meeting_created */
       $meeting_created = $this->meetingCollection->get($id);
       if ($meeting_created) {
         $meeting_info = $this->api->getMeetingInfo(new GetMeetingInfoParameters($meeting_created->getMeetingId(), $meeting_created->getModeratorPassword()));
-        if ($meeting_info) {
-          $attend = new JoinMeetingParameters(
+        $attend = new JoinMeetingParameters(
             $meeting_created->getMeetingId(),
             $account->getDisplayName(),
             $meeting_created->getAttendeePassword()
@@ -157,7 +157,6 @@ class Meeting implements MeetingInterface {
           $this->moduleHandler->alter('bbb_get_meeting', $meeting);
           // Static cache.
           self::$meetings[$id] = $meeting;
-        }
       }
     }
     return isset(self::$meetings[$id]) ? self::$meetings[$id] : [];

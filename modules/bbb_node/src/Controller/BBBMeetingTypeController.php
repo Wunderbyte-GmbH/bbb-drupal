@@ -2,6 +2,7 @@
 
 namespace Drupal\bbb_node\Controller;
 
+use BigBlueButton\Parameters\CreateMeetingParameters;
 use BigBlueButton\Parameters\GetMeetingInfoParameters;
 use Drupal\bbb\Service\Api;
 use Drupal\bbb_node\Service\NodeMeeting;
@@ -105,19 +106,21 @@ class BBBMeetingTypeController extends ControllerBase {
    *   Render array.
    */
   public function attend(NodeInterface $node) {
-    if (is_numeric($node)) {
-      $node = $this->nodeStorage->load($node);
-    }
     $node_type = $node->getType();
     $meeting_settings = $this->entityTypeManager->getStorage('bbb_node_type')
       ->load($node_type);
     $mode = 'attend';
-    $meeting = $this->nodeMeeting->get($node);
-
+    $meeting = $this->nodeMeeting->get($node, $this->currentUser());
+    if (empty($meeting['info'])) {
+      $params = new CreateMeetingParameters($node->uuid(), $node->getTitle());
+      $this->nodeMeeting->create($node, $params);
+      $this->nodeMeeting->update($node, $params);
+      $meeting = $this->nodeMeeting->get($node, $this->currentUser());
+    }
     $status = $this->api->getMeetingInfo(new GetMeetingInfoParameters($meeting['created']->getMeetingId(), $meeting['created']->getModeratorPassword()));
     if ($status && property_exists($status, 'hasBeenForciblyEnded') && $status->hasBeenForciblyEnded() == 'true') {
       $this->messenger->addWarning('The meeting has been terminated and is not available for attending.');
-      return new RedirectResponse(Url::fromRoute('entity.node.canonical', ['node' => $node->id()], ['absolute' => TRUE]));
+      return new RedirectResponse(Url::fromRoute('bbb_node.meeting.closed', ['node' => $node->id()], ['absolute' => TRUE]));
     }
 
 //    drupal_set_title($node->getTitle());
@@ -168,10 +171,6 @@ class BBBMeetingTypeController extends ControllerBase {
    *   Drupal render array.
    */
   public function moderate(NodeInterface $node, $record = NULL) {
-    if (is_numeric($node)) {
-      /** @var \Drupal\node\NodeInterface $node */
-      $node = $this->nodeStorage->load($node);
-    }
     $mode = 'moderate';
     $meeting = $this->nodeMeeting->get($node);
 
@@ -226,11 +225,7 @@ class BBBMeetingTypeController extends ControllerBase {
    * Redirect to meeting.
    */
   public function attendRedirect(NodeInterface $node, $mode = 'attend') {
-    if (is_numeric($node)) {
-      /** @var \Drupal\node\NodeInterface $node */
-      $node = $this->nodeStorage->load($node);
-    }
-    $meeting = $this->nodeMeeting->get($node, NULL, false);
+    $meeting = $this->nodeMeeting->get($node, \Drupal::currentUser(), false);
     if (empty($meeting['url'][$mode])) {
       // Redirect not found.
       throw new NotFoundHttpException();
