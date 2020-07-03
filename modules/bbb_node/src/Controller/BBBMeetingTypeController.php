@@ -110,7 +110,7 @@ class BBBMeetingTypeController extends ControllerBase {
     $meeting_settings = $this->entityTypeManager->getStorage('bbb_node_type')
       ->load($node_type);
     $mode = 'attend';
-    $meeting = $this->nodeMeeting->get($node, $this->currentUser());
+    $meeting = $this->nodeMeeting->get($node, \Drupal::currentUser());
     if (empty($meeting['info'])) {
       $params = new CreateMeetingParameters($node->uuid(), $node->getTitle());
       $this->nodeMeeting->create($node, $params);
@@ -172,7 +172,7 @@ class BBBMeetingTypeController extends ControllerBase {
    */
   public function moderate(NodeInterface $node, $record = NULL) {
     $mode = 'moderate';
-    $meeting = $this->nodeMeeting->get($node);
+    $meeting = $this->nodeMeeting->get($node, \Drupal::currentUser());
 
     $status = $this->api->getMeetingInfo(new GetMeetingInfoParameters($meeting['created']->getMeetingId(), $meeting['created']->getModeratorPassword()));
     if ($status && property_exists($status, 'hasBeenForciblyEnded') && $status->hasBeenForciblyEnded() == 'true') {
@@ -245,10 +245,6 @@ class BBBMeetingTypeController extends ControllerBase {
    * @return JsonResponse with boolean 'running'
    */
   public function status(NodeInterface $node) {
-    if (is_numeric($node)) {
-      /** @var \Drupal\node\NodeInterface $node */
-      $node = $this->nodeStorage->load($node);
-    }
     $meeting = $this->nodeMeeting->get($node);
     $status = $this->api->getMeetingInfo(new GetMeetingInfoParameters($meeting['created']->getMeetingId(), $meeting['created']->getModeratorPassword()));
     if ($status && property_exists($status, 'isRunning') && $status->isRunning()) {
@@ -263,10 +259,6 @@ class BBBMeetingTypeController extends ControllerBase {
    * Redirect to node after lewviong conference on display mode = inline.
    */
   public function closed(NodeInterface $node) {
-    if (is_numeric($node)) {
-      /** @var \Drupal\node\NodeInterface $node */
-      $node = $this->nodeStorage->load($node);
-    }
     $options = ['absolute' => TRUE];
     $url_object = Url::fromRoute('entity.node.canonical', ['node' => $node->id()], $options);
     $build = [
