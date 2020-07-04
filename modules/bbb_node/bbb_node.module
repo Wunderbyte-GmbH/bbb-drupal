@@ -118,7 +118,7 @@ function bbb_node_form_alter(&$form, FormStateInterface $form_state, $form_id) {
       }
       $bbb_form = $manager->getFormObject($entity->getEntityTypeId(), 'edit');
       $bbb_form->setEntity($entity);
-      $form['bbb'] = $bbb_form->buildForm([], new FormState());
+      $bbb_form->buildForm($form, $form_state);
       if (!empty($form['bbb']['#submit'])) {
         $form['#submit'][] = array_pop($form['bbb']['#submit']);
       }

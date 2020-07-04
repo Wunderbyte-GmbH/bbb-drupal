@@ -223,9 +223,14 @@ class BBBMeetingTypeController extends ControllerBase {
 
   /**
    * Redirect to meeting.
+   *
+   * @param \Drupal\node\NodeInterface $node
+   * @param string $mode
+   *
+   * @return \Drupal\Core\Routing\TrustedRedirectResponse
    */
   public function attendRedirect(NodeInterface $node, $mode = 'attend') {
-    $meeting = $this->nodeMeeting->get($node, \Drupal::currentUser(), false);
+    $meeting = $this->nodeMeeting->get($node, \Drupal::currentUser(), true);
     if (empty($meeting['url'][$mode])) {
       // Redirect not found.
       throw new NotFoundHttpException();
