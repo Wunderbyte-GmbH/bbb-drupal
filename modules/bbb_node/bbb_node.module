@@ -223,21 +223,24 @@ function bbb_node_form_node_form_alter(&$form, FormStateInterface $form_state, $
 
 function _bbb_node_submit(array $form, FormStateInterface $form_state) {
   $node = $form_state->getFormObject()->getEntity();
-  $params = new CreateMeetingParameters($node->uuid(), $node->getTitle());
-  $meeting = \Drupal::service('bbb_node.meeting');
-  $data = $meeting->get($node);
-  $params->setWelcomeMessage($form['bbb']['welcome']['#value']);
-  $params->setDialNumber($form['bbb']['dialNumber']['#value']);
-  $params->setModeratorPassword($form['bbb']['moderatorPW']['#value']);
-  $params->setAttendeePassword($form['bbb']['attendeePW']['#value']);
-  $display_mode = \Drupal::config('bbb_node.settings')->get('display_mode');
-  $params->setLogoutURL($display_mode =='blank' ? $form['bbb']['logoutURL']['#value']: Url::fromRoute('bbb_node.meeting.closed', ['node' => $node->id()], ['absolute' => 'true'])
-    ->toString());
-  $params->setRecord($form['bbb']['record']['#value']);
-  if ($data = $meeting->create($node, $params)) {
-    // Update local data.
-    $meeting->update($node, $params);
+  if ($node->getType($node) === 'target_meeting_type') {
+    $params = new CreateMeetingParameters($node->uuid(), $node->getTitle());
+    $meeting = \Drupal::service('bbb_node.meeting');
+    $data = $meeting->get($node);
+    $params->setWelcomeMessage($form['bbb']['welcome']['#value']);
+    $params->setDialNumber($form['bbb']['dialNumber']['#value']);
+    $params->setModeratorPassword($form['bbb']['moderatorPW']['#value']);
+    $params->setAttendeePassword($form['bbb']['attendeePW']['#value']);
+    $display_mode = \Drupal::config('bbb_node.settings')->get('display_mode');
+    $params->setLogoutURL($display_mode == 'blank' ? $form['bbb']['logoutURL']['#value'] : Url::fromRoute('bbb_node.meeting.closed', ['node' => $node->id()], ['absolute' => 'true'])
+      ->toString());
+    $params->setRecord($form['bbb']['record']['#value']);
+    if ($data = $meeting->create($node, $params)) {
+      // Update local data.
+      $meeting->update($node, $params);
+    }
   }
+
 }
 
 /**
@@ -289,6 +292,7 @@ function bbb_node_node_view(array &$build, EntityInterface $node, EntityViewDisp
       '#meeting' => _bbb_node_get_links($node),
       '#weight' => 10,
     ];
+    $build['#attached']['library'] = [];
     /*
     $build['content']['bbb_meeting_record'] = [
       '#theme' => 'bbb_meeting_status',
