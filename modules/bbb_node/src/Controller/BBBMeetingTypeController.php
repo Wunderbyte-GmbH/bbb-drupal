@@ -133,7 +133,7 @@ class BBBMeetingTypeController extends ControllerBase {
       if ($meeting_settings->get('moderatorRequired')) {
         $this->messenger->addStatus($this->t('You signed up for this meeting. Please stay on this page, you will be redirected immediately after the meeting has started.'));
         $render = $this->entityTypeManager->getViewBuilder('node')->view($node);
-        $render['#attached']['library'] = 'bbb_node/check_status';
+        $render['#attached']['library'] = ['bbb_node/check_status'];
         $url = Url::fromRoute('bbb_node.meeting.end_status', ['node' => $node->id()]);
         $render['#attached']['drupalSettings']['bbb']['check_status']['url'] = $url->toString();
         return $render;
@@ -269,7 +269,7 @@ class BBBMeetingTypeController extends ControllerBase {
     $build = [
       '#markup' => t('Please wait a second ...'),
       '#attached' => [
-        'library' => 'bbb_node/reload_node',
+        'library' => ['bbb_node/reload_node'],
         'drupalSettings' => [
           'bbb' => [
             'reload' => [

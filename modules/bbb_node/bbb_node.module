@@ -289,6 +289,7 @@ function bbb_node_node_view(array &$build, EntityInterface $node, EntityViewDisp
       '#meeting' => _bbb_node_get_links($node),
       '#weight' => 10,
     ];
+    $build['#attached']['library'] = [];
     /*
     $build['content']['bbb_meeting_record'] = [
       '#theme' => 'bbb_meeting_status',
