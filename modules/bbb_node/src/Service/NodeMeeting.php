@@ -103,7 +103,7 @@ class NodeMeeting {
    * @return array
    *   Meeting info.
    */
-  public function get(NodeInterface $node, $account = NULL, $cached = TRUE) {
+  public function get(NodeInterface $node, $account = NULL, $cached = FALSE) {
     return $this->meetingApi->get($node->uuid(), $account, $cached);
   }
 
