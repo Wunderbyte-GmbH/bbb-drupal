@@ -293,12 +293,12 @@ function bbb_node_node_view(array &$build, EntityInterface $node, EntityViewDisp
       '#weight' => 10,
     ];
     $build['#attached']['library'] = [];
-    /*
+
     $build['content']['bbb_meeting_record'] = [
       '#theme' => 'bbb_meeting_status',
       '#meeting' => _bbb_node_get_links($node, true),
       '#weight' => 11,
-    ];*/
+    ];
   }
 
   // Add links to content.
@@ -451,6 +451,7 @@ function _bbb_node_get_links($node, $record = NULL){
       if (!$user->hasPermission("bbb_node $mode meetings")) {
         continue;
       }
+      //$record = true;
       if ($record) {
         $url = Url::fromRoute("bbb_node.meeting.$mode", array('node' => $node->id(),'record' =>'record'));
       }

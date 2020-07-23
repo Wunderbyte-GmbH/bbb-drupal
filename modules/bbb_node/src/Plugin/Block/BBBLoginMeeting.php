@@ -117,9 +117,12 @@ class BBBLoginMeeting extends BlockBase implements ContainerFactoryPluginInterfa
    */
   public function build() {
     $node = $this->routeMatch->getParameter('node');
+    $meeting = $this->nodeMeeting->get($node);
+
+    $record = $meeting->record ? true : false;
     return [
       '#theme' => 'bbb_meeting_status',
-      '#meeting' => _bbb_node_get_links($node),
+      '#meeting' => _bbb_node_get_links($node, $record),
       '#status' => $this->status($node),
       '#cache' => ['max-age' => 0,],
       '#attributes' => ['id' => 'meeting_status', 'class' => 'meeting_status'],

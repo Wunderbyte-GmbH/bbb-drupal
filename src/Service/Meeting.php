@@ -131,14 +131,14 @@ class Meeting implements MeetingInterface {
         $meeting_info = $this->api->getMeetingInfo(new GetMeetingInfoParameters($meeting_created->getMeetingId(), $meeting_created->getModeratorPassword()));
         $attend = new JoinMeetingParameters(
             $meeting_created->getMeetingId(),
-            $account->getDisplayName(),
+            htmlentities($account->getDisplayName()),
             $meeting_created->getAttendeePassword()
           );
           $attend->setJoinViaHtml5(TRUE);
           $attend->setRedirect(TRUE);
           $moderate = new JoinMeetingParameters(
             $meeting_created->getMeetingId(),
-            $account->getDisplayName(),
+            htmlentities($account->getDisplayName()),
             $meeting_created->getModeratorPassword()
           );
           $moderate->setJoinViaHtml5(TRUE);
@@ -157,6 +157,10 @@ class Meeting implements MeetingInterface {
           $this->moduleHandler->alter('bbb_get_meeting', $meeting);
           // Static cache.
           self::$meetings[$id] = $meeting;
+
+          //var_dump($url); exit();
+
+
       }
     }
     return isset(self::$meetings[$id]) ? self::$meetings[$id] : [];

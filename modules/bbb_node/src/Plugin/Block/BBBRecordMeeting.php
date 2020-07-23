@@ -157,6 +157,7 @@ class BBBRecordMeeting extends BlockBase implements ContainerFactoryPluginInterf
    */
   public function build() {
     $node = $this->routeMatch->getParameter('node');
+    dd($node);//exit();
     $records = $this->get_records($node);
     return [
       '#theme' => 'bbb_meeting_record',
