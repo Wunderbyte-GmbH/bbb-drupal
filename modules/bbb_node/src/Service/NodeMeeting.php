@@ -149,10 +149,11 @@ class NodeMeeting {
           Url::fromUserInput($bbb_config->get('logoutURL'), ['absolute' => TRUE])
             ->toString()
         )
-    );
+    );var_dump($params->isRecorded(), $bbb_config->get('record'));
     $params->setRecord(
-      $params->isRecorded() ?:
-        (bool) $bbb_config->get('record')
+      is_null($params->isRecorded()) ? (bool) $bbb_config->get('record') :  $params->isRecorded()
+      /*
+        (bool) $bbb_config->get('record')*/
     );
     // This is the PIN that a dial-in user must enter to join the conference.
     // 5-digit value.
