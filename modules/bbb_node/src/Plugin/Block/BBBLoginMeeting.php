@@ -112,14 +112,28 @@ class BBBLoginMeeting extends BlockBase implements ContainerFactoryPluginInterfa
       return 'closed';
     }
   }
+
+  protected function record($node) {
+    $meeting = $this->nodeMeeting->get($node);
+    if (count($meeting) == 0){
+      return null;
+    }
+    $record = $this->api->getMeetingInfo(new GetMeetingInfoParameters($meeting['created']->getMeetingId(), $meeting['created']->getModeratorPassword()));
+    if ($record && property_exists($record, true)) {
+      return true;
+    }
+    else {
+      return false;
+    }
+  }
+
   /**
    * Implements \Drupal\block\BlockBase::build().
    */
   public function build() {
     $node = $this->routeMatch->getParameter('node');
     $meeting = $this->nodeMeeting->get($node);
-
-    $record = $meeting->record ? true : false;
+    $record = $meeting['created']->isRecorded();
     return [
       '#theme' => 'bbb_meeting_status',
       '#meeting' => _bbb_node_get_links($node, $record),
@@ -129,5 +143,4 @@ class BBBLoginMeeting extends BlockBase implements ContainerFactoryPluginInterfa
       '#allowed_tags' => ['span'],
     ];
   }
-
 }

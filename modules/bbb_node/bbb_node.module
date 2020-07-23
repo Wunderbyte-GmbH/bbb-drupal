@@ -467,6 +467,8 @@ function _bbb_node_get_links($node, $record = NULL){
         $link['#attributes']['target'] = '_blank';
       }
       $links['#items'][] = $link;
+      $node_meeting = \Drupal::service('bbb_node.meeting');
+      $meeting = $node_meeting->get($node);
     }
   return $links;
 }
