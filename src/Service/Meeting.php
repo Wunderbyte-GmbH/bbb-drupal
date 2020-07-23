@@ -131,7 +131,7 @@ class Meeting implements MeetingInterface {
         $meeting_info = $this->api->getMeetingInfo(new GetMeetingInfoParameters($meeting_created->getMeetingId(), $meeting_created->getModeratorPassword()));
         $attend = new JoinMeetingParameters(
             $meeting_created->getMeetingId(),
-            $account->getDisplayName(),
+            urlencode($account->getDisplayName()),
             $meeting_created->getAttendeePassword()
           );
           $attend->setJoinViaHtml5(TRUE);

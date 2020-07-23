@@ -223,10 +223,10 @@ function bbb_node_form_node_form_alter(&$form, FormStateInterface $form_state, $
 
 function _bbb_node_submit(array $form, FormStateInterface $form_state) {
   $node = $form_state->getFormObject()->getEntity();
-  if ($node->getType($node) === 'target_meeting_type') {
+  $meeting = \Drupal::service('bbb_node.meeting');
+  if ($meeting->isTypeOf($node)) {
     $params = new CreateMeetingParameters($node->uuid(), $node->getTitle());
-    $meeting = \Drupal::service('bbb_node.meeting');
-    $data = $meeting->get($node);
+    $meeting->get($node);
     $params->setWelcomeMessage($form['bbb']['welcome']['#value']);
     $params->setDialNumber($form['bbb']['dialNumber']['#value']);
     $params->setModeratorPassword($form['bbb']['moderatorPW']['#value']);
