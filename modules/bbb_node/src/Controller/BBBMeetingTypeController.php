@@ -172,7 +172,7 @@ class BBBMeetingTypeController extends ControllerBase {
    */
   public function moderate(NodeInterface $node, $record = NULL) {
     $mode = 'moderate';
-    $meeting = $this->nodeMeeting->get($node, \Drupal::currentUser());
+    $meeting = $this->nodeMeeting->get($node, \Drupal::currentUser(), FALSE);
 
     $status = $this->api->getMeetingInfo(new GetMeetingInfoParameters($meeting['created']->getMeetingId(), $meeting['created']->getModeratorPassword()));
     if ($status && property_exists($status, 'hasBeenForciblyEnded') && $status->hasBeenForciblyEnded() == 'true') {
@@ -230,7 +230,7 @@ class BBBMeetingTypeController extends ControllerBase {
    * @return \Drupal\Core\Routing\TrustedRedirectResponse
    */
   public function attendRedirect(NodeInterface $node, $mode = 'attend') {
-    $meeting = $this->nodeMeeting->get($node, \Drupal::currentUser(), true);
+    $meeting = $this->nodeMeeting->get($node, \Drupal::currentUser(), false);
     if (empty($meeting['url'][$mode])) {
       // Redirect not found.
       throw new NotFoundHttpException();

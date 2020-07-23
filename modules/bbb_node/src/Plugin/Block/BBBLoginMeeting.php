@@ -112,19 +112,35 @@ class BBBLoginMeeting extends BlockBase implements ContainerFactoryPluginInterfa
       return 'closed';
     }
   }
+
+  protected function record($node) {
+    $meeting = $this->nodeMeeting->get($node);
+    if (count($meeting) == 0){
+      return null;
+    }
+    $record = $this->api->getMeetingInfo(new GetMeetingInfoParameters($meeting['created']->getMeetingId(), $meeting['created']->getModeratorPassword()));
+    if ($record && property_exists($record, true)) {
+      return true;
+    }
+    else {
+      return false;
+    }
+  }
+
   /**
    * Implements \Drupal\block\BlockBase::build().
    */
   public function build() {
     $node = $this->routeMatch->getParameter('node');
+    $meeting = $this->nodeMeeting->get($node);
+    $record = $meeting['created']->isRecorded();
     return [
       '#theme' => 'bbb_meeting_status',
-      '#meeting' => _bbb_node_get_links($node),
+      '#meeting' => _bbb_node_get_links($node, $record),
       '#status' => $this->status($node),
       '#cache' => ['max-age' => 0,],
       '#attributes' => ['id' => 'meeting_status', 'class' => 'meeting_status'],
       '#allowed_tags' => ['span'],
     ];
   }
-
 }
