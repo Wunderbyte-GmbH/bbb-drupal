@@ -126,7 +126,7 @@ class BBBMeetingTypeController extends ControllerBase {
 //    drupal_set_title($node->getTitle());
     if ($status && property_exists($status, 'isRunning') && $status->isRunning()) {
       if ($this->getDisplayMode() === 'blank') {
-        $this->attendRedirect($node, $mode);
+        return $this->attendRedirect($node, $mode);
       }
     }
     else {
