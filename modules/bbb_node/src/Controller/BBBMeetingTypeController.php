@@ -171,9 +171,9 @@ class BBBMeetingTypeController extends ControllerBase {
    *   Drupal render array.
    */
   public function moderate(NodeInterface $node, $record = NULL) {
+
     $mode = 'moderate';
     $meeting = $this->nodeMeeting->get($node, \Drupal::currentUser(), FALSE);
-
     $status = $this->api->getMeetingInfo(new GetMeetingInfoParameters($meeting['created']->getMeetingId(), $meeting['created']->getModeratorPassword()));
     if ($status && property_exists($status, 'hasBeenForciblyEnded') && $status->hasBeenForciblyEnded() == 'true') {
       $this->messenger->addStatus('The meeting has been terminated and is not available for reopening.');
@@ -184,6 +184,7 @@ class BBBMeetingTypeController extends ControllerBase {
     // Implicitly create meeting.
     $display_mode = $this->config('bbb_node.settings')->get('display_mode');
     if (empty($meeting->initialized)) {
+      $meeting['created']->setAllowStartStopRecording(true);
       if ($meeting['created']->isRecorded() == TRUE) {
         $meeting['created']->setAllowStartStopRecording(true);
         if($record === 'norecord') {

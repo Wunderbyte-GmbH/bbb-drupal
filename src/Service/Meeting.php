@@ -143,6 +143,8 @@ class Meeting implements MeetingInterface {
           );
           $moderate->setJoinViaHtml5(TRUE);
           $moderate->setRedirect(TRUE);
+          //$moderate->setAutoStartRecording(true);
+           //$moderate->setAllowStartStopRecording(true);
           $url = [
             'attend' => $this->api->joinMeeting($attend),
             'moderate' => $this->api->joinMeeting($moderate),

@@ -451,13 +451,12 @@ function _bbb_node_get_links($node, $record = NULL){
       if (!$user->hasPermission("bbb_node $mode meetings")) {
         continue;
       }
-      //$record = true;
       if ($record) {
         $url = Url::fromRoute("bbb_node.meeting.$mode", array('node' => $node->id(),'record' =>'record'));
       }
       else {
         $url = Url::fromRoute("bbb_node.meeting.$mode", array('node' => $node->id(),'record' => 'norecord'));
-      }
+        }
       $link = [
         '#type' => 'link',
         '#url' => $url,

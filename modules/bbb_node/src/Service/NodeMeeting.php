@@ -163,8 +163,10 @@ class NodeMeeting {
       $params->getLogo() ?:
         Url::fromUserInput($bbb_config->get('logoURL'), ['absolute' => TRUE])->toString()
     );*/
-    // $params->setAllowStartStopRecording();
-    // $params->setAutoStartRecording();
+    $params->setAllowStartStopRecording((bool) $params->isRecorded());
+    $params->setAutoStartRecording(false);
+
+    //var_dump($params); exit();
     // $params->setCopyright($params->getCopyright());
     // $params->setDuration($params->getDuration());
     // $params->setEndCallbackUrl();
